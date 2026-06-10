@@ -1,0 +1,14 @@
+sync:
+  label: 上游同步
+  permalink: /sync
+  description: 从 CDDA 上游同步内容的进展
+
+build:
+  label: 构建
+  permalink: /build
+  description: 编译与构建相关
+
+announcement:
+  label: 公告
+  permalink: /announcement
+  description: 项目公告与重要更新

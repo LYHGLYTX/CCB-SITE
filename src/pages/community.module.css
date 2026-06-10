@@ -1,0 +1,91 @@
+.heroBanner {
+  padding: 3rem 0;
+  text-align: center;
+}
+
+/* QQ 群卡片 */
+.qqCol {
+  margin-bottom: 1.5rem;
+}
+
+.qqCard {
+  height: 100%;
+  padding: 1.5rem;
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-radius: var(--ifm-card-border-radius, 8px);
+  text-align: center;
+  background: var(--ifm-card-background-color);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.qqCard:hover {
+  box-shadow: var(--ifm-global-shadow-md);
+  transform: translateY(-3px);
+}
+
+.qrImage {
+  width: 200px;
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+}
+
+.qqName {
+  margin-top: 1rem;
+  margin-bottom: 0.25rem;
+}
+
+.qqNumber {
+  font-weight: 600;
+  font-family: var(--ifm-font-family-monospace);
+  margin-bottom: 0.25rem;
+  color: var(--ifm-color-primary);
+}
+
+.qqDesc {
+  color: var(--ifm-color-emphasis-700);
+  margin-bottom: 0;
+  font-size: 0.9rem;
+}
+
+/* 在线社区卡片 */
+.onlineCol {
+  margin-bottom: 1rem;
+  text-decoration: none;
+}
+
+.onlineCol:hover {
+  text-decoration: none;
+}
+
+.onlineCard {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  height: 100%;
+  padding: 1.25rem 1.5rem;
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-radius: var(--ifm-card-border-radius, 8px);
+  background: var(--ifm-card-background-color);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.onlineCard:hover {
+  box-shadow: var(--ifm-global-shadow-md);
+  transform: translateY(-3px);
+}
+
+.onlineEmoji {
+  font-size: 2.5rem;
+  line-height: 1;
+}
+
+.onlineName {
+  margin-bottom: 0.2rem;
+}
+
+.onlineDesc {
+  margin-bottom: 0;
+  color: var(--ifm-color-emphasis-700);
+  font-size: 0.9rem;
+}
