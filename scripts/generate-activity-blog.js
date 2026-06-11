@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * 从 GitHub 获取 CCB 仓库近期活动（PR、commit），自动生成博客文章。
+ * 从 GitHub 获取 CCB 仓库今日活动（PR、commit），自动生成博客文章。
  *
  * 用法:
  *   node scripts/generate-activity-blog.js [--dry-run]
@@ -9,14 +9,14 @@
  * 环境变量:
  *   GITHUB_TOKEN      - GitHub API 令牌（Actions 中自动提供）
  *   GITHUB_REPOSITORY - 仓库名，默认 LYHGLYTX/Cataclysm-Cleanwater-Bomb
- *   LOOKBACK_DAYS     - 回顾天数，默认 7
+ *   LOOKBACK_DAYS     - 回顾天数，默认 1
  */
 
 const fs = require("fs");
 const path = require("path");
 
 const REPO = process.env.GITHUB_REPOSITORY || "LYHGLYTX/Cataclysm-Cleanwater-Bomb";
-const LOOKBACK_DAYS = parseInt(process.env.LOOKBACK_DAYS || "7", 10);
+const LOOKBACK_DAYS = parseInt(process.env.LOOKBACK_DAYS || "1", 10);
 const BLOG_DIR = path.join(__dirname, "..", "blog");
 const DRY_RUN = process.argv.includes("--dry-run");
 
@@ -69,36 +69,31 @@ async function fetchRecentCommits(since) {
   return fetchJSON(url);
 }
 
-function generateSlug(date) {
-  const y = date.getFullYear();
-  const w = getWeekNumber(date);
-  return `${y}-w${String(w).padStart(2, "0")}-activity`;
-}
-
-function getWeekNumber(d) {
-  const start = new Date(d.getFullYear(), 0, 1);
-  return Math.ceil(((d - start) / 86400000 + start.getDay() + 1) / 7);
-}
-
 function formatDate(d) {
   const m = d.getMonth() + 1;
   const day = d.getDate();
   return `${d.getFullYear()}-${String(m).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 }
 
+function todayStr() {
+  const now = new Date();
+  return formatDate(now);
+}
+
 async function main() {
   const now = new Date();
   const since = new Date(now.getTime() - LOOKBACK_DAYS * 86400000);
-  const slug = generateSlug(now);
-  const filename = `${formatDate(now)}-${slug}.md`;
+  const dateStr = formatDate(now);
+  const slug = `${dateStr}-activity`;
+  const filename = `${dateStr}-activity.md`;
 
   const existingFiles = fs.readdirSync(BLOG_DIR).filter((f) => f.endsWith(".md"));
-  if (existingFiles.some((f) => f.includes(slug))) {
-    console.log(`[skip] 本周博客已存在 (${slug})`);
+  if (existingFiles.some((f) => f.startsWith(dateStr))) {
+    console.log(`[skip] 今日博客已存在 (${dateStr})`);
     return { created: false };
   }
 
-  console.log(`[fetch] 获取 ${REPO} 自 ${since.toISOString()} 以来的活动...`);
+  console.log(`[fetch] 获取 ${REPO} ${dateStr} 活动...`);
 
   let prs;
   let commits;
@@ -115,24 +110,60 @@ async function main() {
   console.log(`[info] 已合并 PR: ${prs.length}  提交: ${commits.length}`);
 
   if (prs.length === 0 && commits.length === 0) {
-    console.log("[skip] 近期无活动");
+    console.log("[skip] 今日无活动");
     return { created: false };
   }
+
+  const stats = {};
+  for (const pr of prs) {
+    const u = pr.user ? pr.user.login : "unknown";
+    if (!stats[u]) stats[u] = { prs: 0, commits: 0 };
+    stats[u].prs++;
+  }
+  for (const c of commits) {
+    const u = c.author ? c.author.login : (c.commit?.author?.name || "unknown");
+    if (!stats[u]) stats[u] = { prs: 0, commits: 0 };
+    stats[u].commits++;
+  }
+  const contributors = Object.entries(stats)
+    .map(([name, s]) => ({ name, total: s.prs * 3 + s.commits, ...s }))
+    .sort((a, b) => b.total - a.total);
+
+  // 生成内联作者（所有贡献者，带头像和 GitHub 链接）
+  const authorsYaml = contributors
+    .map((c) => `  - {name: '${c.name}', image_url: 'https://github.com/${c.name}.png?size=40', url: 'https://github.com/${c.name}'}`)
+    .join("\n");
 
   const lines = [];
 
   lines.push("---");
   lines.push(`slug: ${slug}`);
-  lines.push(`title: CCB 开发动态 (${formatDate(since)} ~ ${formatDate(now)})`);
-  lines.push("authors: [lyh]");
+  lines.push(`title: CCB 开发动态 (${dateStr})`);
+  lines.push("authors:");
+  lines.push(authorsYaml);
   lines.push("tags: [activity, auto]");
   lines.push("---");
   lines.push("");
   lines.push(
-    `过去 ${LOOKBACK_DAYS} 天的开发动态，由 GitHub Actions 自动生成。`
+    `${dateStr} 开发动态，由 GitHub Actions 自动生成。`
   );
   lines.push("");
-  lines.push("<!-- truncate -->");
+  lines.push("{/* truncate */}");
+  lines.push("");
+
+  lines.push("## 今日贡献者");
+  lines.push("");
+  lines.push("<div class=\"contributors-row\">");
+  for (const c of contributors) {
+    const avatar = `https://github.com/${c.name}.png?size=40`;
+    const profile = `https://github.com/${c.name}`;
+    lines.push(
+      `  <a href="${profile}" title="@${c.name}" class="contributor-badge">` +
+      `<img src="${avatar}" width="28" height="28" loading="lazy" />` +
+      `<span>${c.name}</span></a>`
+    );
+  }
+  lines.push("</div>");
   lines.push("");
 
   if (prs.length > 0) {
@@ -151,7 +182,7 @@ async function main() {
   }
 
   if (commits.length > 0) {
-    lines.push(`## 近期提交（${commits.length}）`);
+    lines.push(`## 今日提交（${commits.length}）`);
     lines.push("");
     lines.push("| 提交 | 作者 | 时间 |");
     lines.push("|---|---|---|");
@@ -182,7 +213,6 @@ async function main() {
 
 main()
   .then((result) => {
-    if (result.created) process.exit(0);
     process.exit(0);
   })
   .catch((err) => {

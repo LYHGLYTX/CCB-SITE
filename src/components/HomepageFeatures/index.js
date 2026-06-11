@@ -6,29 +6,17 @@ const FeatureList = [
   {
     title: '新人教程',
     Svg: require('@site/static/img/undraw_docusaurus_mountain.svg').default,
-    description: (
-      <>
-        第一次玩 CCB？从下载安装到活过第一天，一步步带你上手生存。
-      </>
-    ),
+    description: '第一次玩 CCB？从下载安装到活过第一天，一步步带你上手生存。',
   },
   {
     title: '开发者教程',
     Svg: require('@site/static/img/undraw_docusaurus_tree.svg').default,
-    description: (
-      <>
-        想参与开发或制作模组？了解如何从源码编译，以及向 CCB 提交贡献的流程。
-      </>
-    ),
+    description: '想参与开发或制作模组？了解如何从源码编译，以及向 CCB 提交贡献的流程。',
   },
   {
     title: '贡献指南',
     Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
-    description: (
-      <>
-        代码、贴图、翻译、内容 —— 不管会不会写代码，都有适合你的参与方式。
-      </>
-    ),
+    description: '代码、贴图、翻译、内容 —— 不管会不会写代码，都有适合你的参与方式。',
   },
 ];
 

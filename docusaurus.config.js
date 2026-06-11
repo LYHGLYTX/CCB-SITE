@@ -72,7 +72,7 @@ const config = {
           editUrl:
             'https://github.com/LYHGLYTX/CCB-SITE/tree/main/',
           onInlineTags: 'warn',
-          onInlineAuthors: 'warn',
+          onInlineAuthors: 'ignore',
           onUntruncatedBlogPosts: 'warn',
         },
         theme: {

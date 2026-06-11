@@ -1,16 +1,11 @@
 import {useState, useEffect, useCallback} from 'react';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
+import slidesJson from './slides.json';
 import styles from './styles.module.css';
 
-// 轮播图片列表。把图片放到 static/img/carousel/ 下，在这里加一项即可。
-// img 用相对站点根的路径（不带 baseUrl，组件会自动加）。caption 可留空。
-const SLIDES = [
-  {img: 'img/carousel/1.png', caption: '欢迎来到 Cataclysm: Cleanwater Bomb'},
-  {img: 'img/carousel/2.png', caption: ''},
-  {img: 'img/carousel/3.png', caption: ''},
-];
+const SLIDES = slidesJson.map((img) => ({img, caption: ''}));
 
-const INTERVAL = 4000; // 自动切换间隔（毫秒）
+const INTERVAL = 4000;
 
 export default function HomepageCarousel() {
   const {siteConfig} = useDocusaurusContext();
@@ -31,7 +26,6 @@ export default function HomepageCarousel() {
 
   if (n === 0) return null;
 
-  // baseUrl 末尾带 /，img 不带前导 /，直接拼接
   const srcOf = (img) => `${baseUrl}${img}`;
 
   return (
@@ -45,8 +39,7 @@ export default function HomepageCarousel() {
             key={i}
             className={i === idx ? `${styles.slide} ${styles.slideActive}` : styles.slide}
             aria-hidden={i !== idx}>
-            <img className={styles.slideImg} src={srcOf(s.img)} alt={s.caption || `幻灯片 ${i + 1}`} />
-            {s.caption ? <div className={styles.caption}>{s.caption}</div> : null}
+            <img className={styles.slideImg} src={srcOf(s.img)} alt={`幻灯片 ${i + 1}`} />
           </div>
         ))}
 
